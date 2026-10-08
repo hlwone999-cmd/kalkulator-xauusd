@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkulator Lot XAUUSD (IDR)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Kalkulator Lot XAUUSD</h1>
+    <p>Dari balance, risiko, dan rasio R:R, tabel menunjukkan jarak SL dan TP (dalam pips) untuk setiap ukuran lot.</p>
+  </header>
+
+  <div class="grid">
+    <div class="side">
+      <section class="card">
+        <h2>Input</h2>
+        <label class="hero">Maksimal SL (pips)<input id="plan" inputmode="decimal" placeholder="mis. 25" value="25"></label>
+        <p class="hint">Cukup isi jarak SL maksimalmu — lot dihitung otomatis.</p>
+        <label>Balance (Rp)<input id="balance" inputmode="numeric" value="10.000.000"></label>
+        <p class="hint" id="balHint"></p>
+        <label>Kurs USD/IDR<input id="kurs" inputmode="numeric" value="17.934"></label>
+        <div class="chips">
+          <button type="button" id="liveBtn">Pakai kurs sekarang</button>
+          <button type="button" data-kurs="10000">Kurs tetap 10.000</button>
+        </div>
+        <p class="hint" id="kursStatus">Menyambungkan kurs live…</p>
+        <div class="two">
+          <label>Risk (% balance)<input id="risk" inputmode="decimal" value="2"></label>
+          <label>Rasio R:R (1:?)<input id="ratio" inputmode="decimal" value="2"></label>
+        </div>
+      </section>
+    </div>
+
+    <section aria-live="polite">
+      <div class="auto empty" id="auto">
+        <div class="top">
+          <small>Lot otomatis</small>
+          <div class="big" id="aLot">–</div>
+          <div class="sub" id="aSub">Isi maksimal SL (pips) untuk menghitung lot otomatis.</div>
+        </div>
+        <div class="facts">
+          <div><b id="aRisk">–</b><span>Risiko aktual</span></div>
+          <div><b id="aTp">–</b><span>TP pips</span></div>
+          <div><b id="aTgt">–</b><span>Target profit</span></div>
+          <div><b id="aPip">–</b><span>Nilai per 1 pip</span></div>
+        </div>
+      </div>
+      <div class="sum">
+        <div class="risk"><small>Risk amount</small><b id="rIdr">–</b><span id="rUsd">–</span></div>
+        <div class="tgt"><small>Target profit</small><b id="tIdr">–</b><span id="tUsd">–</span></div>
+      </div>
+
+      <div class="tablehead">
+        <h2>Rekomendasi setup (0.01 – 1.50)</h2>
+        <button type="button" class="btn" id="exportBtn" hidden>Export CSV</button>
+      </div>
+      <div class="pickmsg" id="pickmsg"></div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Lot</th><th>SL pips</th><th>TP pips</th><th>Risk (Rp)</th><th>Target (Rp)</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="tablehead"><h2>SL pips per lot × % risiko</h2></div>
+      <p class="hint" id="mxHint">Jarak SL maksimal (pips) sebelum kerugian mencapai persentase balance tersebut.</p>
+      <div class="tbl"><table class="mx" id="mx"></table></div>
+      <p class="legend2">Kolom berwarna = risk % yang kamu isi. Kotak bergaris emas = lot terbesar yang masih muat untuk rencana SL-mu di tiap persentase.</p>
+
+      <section class="card mc" id="mcSec">
+        <h2>Monte Carlo simulation</h2>
+        <p class="hint">Ribuan urutan trade acak dengan balance, risk %, rasio R:R, dan maksimal SL di atas.</p>
+        <div class="inputs">
+          <label>Win rate (%)<input id="wr" inputmode="decimal" value="50"></label>
+          <label>Jumlah trade<input id="nTr" inputmode="numeric" value="100"></label>
+          <label>Spread + komisi (pips)<input id="cost" inputmode="decimal" value="3"></label>
+          <label>Batas drawdown berbahaya (%)<input id="ddLim" inputmode="decimal" value="30"></label>
+          <label>Jumlah simulasi<input id="nSim" inputmode="numeric" value="5000"></label>
+          <label class="chk"><input type="checkbox" id="comp" checked>Compounding (risk % dari balance terkini)</label>
+        </div>
+        <div class="mcv" id="mcVerdict">–</div>
+        <p class="hint" id="mcSub"></p>
+        <div class="stats" id="mcStats"></div>
+        <div class="chart">
+          <h3>Perjalanan balance</h3>
+          <div class="lg"><span><i style="background:var(--band1)"></i>5–95% skenario</span><span><i style="background:var(--band2)"></i>25–75%</span><span><i style="background:var(--gold)"></i>Median</span><span><i style="background:var(--red)"></i>Batas drawdown</span></div>
+          <canvas id="mcFan" height="260"></canvas>
+        </div>
+        <div class="chart">
+          <h3>Sebaran balance akhir</h3>
+          <canvas id="mcHist" height="200"></canvas>
+        </div>
+      </section>
+
+      <p class="note">Rumus: <code>SL pips = Risk USD ÷ (Lot × 10)</code>, <code>TP pips = SL pips × rasio</code>. Pip XAUUSD = $0,10 per oz, 1 lot = 100 oz. Baris yang pudar punya SL di bawah 10 pips — terlalu sempit untuk emas karena spread saja bisa 2–4 pips. Spread, komisi, dan slippage belum dihitung.</p>
+    </section>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
