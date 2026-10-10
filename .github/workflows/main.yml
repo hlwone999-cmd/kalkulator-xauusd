@@ -4,8 +4,11 @@ name: Build Kalkulator XAUUSD APK
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '.github/workflows/main.yml'
+  paths:
+    - '.github/workflows/main.yml'
+    - 'index.html'
+    - 'style.css'
+    - 'script.js'
 
 permissions:
   contents: read
