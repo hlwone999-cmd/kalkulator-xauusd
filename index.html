@@ -17,6 +17,38 @@
     <h1>Kalkulator Lot XAUUSD</h1>
     <p>Dari balance, risiko, dan rasio R:R, tabel menunjukkan jarak SL dan TP (dalam pips) untuk setiap ukuran lot.</p>
     <nav><a class="btn" href="trading.html" style="text-decoration:none;display:inline-block;margin-top:12px">Akun Trading MT4/MT5</a></nav>
+<div id="backendStatus" style="margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:13px">
+  <span id="backendDot" style="color:#f5b942">●</span>
+  <span id="backendStatusText">Memeriksa koneksi backend...</span>
+</div>
+<script>
+(() => {
+  const dot = document.getElementById("backendDot");
+  const label = document.getElementById("backendStatusText");
+
+  async function checkBackend() {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:5000/api/trading/health",
+        { cache: "no-store" }
+      );
+      if (!response.ok) throw new Error();
+
+      const data = await response.json();
+      if (data.ok !== true) throw new Error();
+
+      dot.style.color = "#20c997";
+      label.textContent = "Connected — Backend aktif";
+    } catch {
+      dot.style.color = "#ff6b6b";
+      label.textContent = "Disconnected — Periksa backend Termux";
+    }
+  }
+
+  checkBackend();
+  setInterval(checkBackend, 5000);
+})();
+ </script>
   </header>
 
   <div class="grid">
@@ -106,6 +138,39 @@
   </div>
 </div>
 
+
 <script src="script.js"></script>
+
+<script>
+(() => {
+  const dot = document.getElementById("backendDot");
+  const label = document.getElementById("backendStatusText");
+
+  async function checkBackend() {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:5000/api/trading/health",
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) throw new Error();
+
+      const data = await response.json();
+      if (data.ok !== true) throw new Error();
+
+      dot.style.color = "#20c997";
+      label.textContent = "Connected — Backend aktif";
+    } catch {
+      dot.style.color = "#ff6b6b";
+      label.textContent =
+        "Disconnected — Periksa backend Termux";
+    }
+  }
+
+  checkBackend();
+  setInterval(checkBackend, 5000);
+})();
+</script>
 </body>
 </html>
+
