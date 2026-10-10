@@ -1,0 +1,9 @@
+Flask>=3.0
+cryptography>=42
+pytest>=8
+pyzmq>=25 ; sys_platform != "win32" or platform_machine != "AMD64"
+# CATATAN:
+# - MetaTrader5 (paket resmi) HANYA terpasang di Windows bersama terminal MT5.
+#   Pasang manual di Windows:  pip install MetaTrader5
+# - pyzmq disertakan bila nanti memakai varian bridge ZeroMQ; adapter utama
+#   MT4 memakai socket TCP standar (protokol PyTrader V4) tanpa dependensi ekstra.

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F3F5F6">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#10161C">
+<title>Akun Trading MT4/MT5 — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="trading.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="back"><a href="index.html">&#8592; Kalkulator XAUUSD</a></p>
+    <h1>Akun Trading</h1>
+    <p>Hubungkan akun MetaTrader 4/5 untuk melihat statistik trading secara otomatis — balance, equity, win rate, profit factor, hingga riwayat transaksi. Koneksi bersifat <b>read-only</b>: tidak ada order yang bisa dikirim dari sini.</p>
+  </header>
+
+  <div id="backendBanner" class="banner bad" hidden>
+    Backend trading tidak aktif. Jalankan <code>python backend/app.py</code> dari folder repo, lalu buka halaman ini lewat
+    <code>http://127.0.0.1:5000/trading.html</code>. Panduan lengkap: <code>docs/MT4-MT5-FITUR.md</code>.
+  </div>
+
+  <div class="grid">
+    <!-- ===================== KOLOM KIRI: KONEKSI ===================== -->
+    <div class="side">
+      <section class="card">
+        <h2>Koneksi akun</h2>
+        <label>Platform
+          <select id="platform">
+            <option value="mt5">MetaTrader 5</option>
+            <option value="mt4">MetaTrader 4 (bridge PyTrader)</option>
+            <option value="demo">Mode demonstrasi (data contoh)</option>
+          </select>
+        </label>
+        <label id="rowLogin">Nomor login<input id="login" inputmode="numeric" placeholder="mis. 1234567"></label>
+        <label id="rowPassword">Password akun<input id="password" type="password" autocomplete="off" placeholder="••••••••"></label>
+        <label id="rowServer">Server broker<input id="server" placeholder="mis. Exness-MT5Trial8"></label>
+        <div id="rowBridge" hidden>
+          <label>Alamat bridge MT4 (host/IP)<input id="bridgeHost" placeholder="mis. 192.168.1.10"></label>
+          <label>Port bridge<input id="bridgePort" inputmode="numeric" value="2345"></label>
+          <p class="hint">EA PyTrader harus berjalan di terminal MT4 di komputer/VPS tersebut.</p>
+        </div>
+        <div class="chips">
+          <button type="button" class="btn primary" id="connectBtn">Hubungkan</button>
+          <button type="button" class="btn" id="disconnectBtn" hidden>Putuskan</button>
+          <button type="button" class="btn" id="saveBtn">Simpan akun</button>
+        </div>
+        <p class="hint" id="connMsg"></p>
+
+        <div class="accinfo" id="accInfo" hidden>
+          <div><span>Login</span><b id="aiLogin">–</b></div>
+          <div><span>Broker</span><b id="aiBroker">–</b></div>
+          <div><span>Server</span><b id="aiServer">–</b></div>
+          <div><span>Mata uang</span><b id="aiCurrency">–</b></div>
+          <div><span>Leverage</span><b id="aiLeverage">–</b></div>
+          <div><span>Nama</span><b id="aiName">–</b></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Akun tersimpan</h2>
+        <p class="hint">Password disimpan terenkripsi di backend dan tidak pernah dikirim balik ke halaman ini.</p>
+        <div id="accList" class="acclist"><p class="hint">Belum ada akun tersimpan.</p></div>
+      </section>
+    </div>
+
+    <!-- ===================== KOLOM KANAN: DASHBOARD ===================== -->
+    <section aria-live="polite">
+      <div class="statusbar">
+        <span class="pill" id="modePill" hidden></span>
+        <span class="pill off" id="statusPill">Belum terhubung</span>
+        <button type="button" class="btn" id="refreshBtn" hidden>Muat ulang data</button>
+      </div>
+
+      <div class="empty" id="emptyState">
+        <div class="emptybox">
+          <b>Belum ada akun yang terhubung</b>
+          <p>Isi form koneksi di samping, atau lihat dulu cara kerjanya dengan data contoh yang diberi label <b>DEMO</b>.</p>
+          <button type="button" class="btn primary" id="demoBtn">Coba mode demonstrasi</button>
+        </div>
+      </div>
+
+      <div id="dashboard" hidden>
+        <div class="periods" id="periods">
+          <button type="button" data-p="today">Hari ini</button>
+          <button type="button" data-p="7d">7 hari</button>
+          <button type="button" data-p="30d">30 hari</button>
+          <button type="button" data-p="all" class="active">Semua</button>
+          <button type="button" data-p="custom">Khusus</button>
+        </div>
+        <div class="customrange" id="customRange" hidden>
+          <label>Dari<input type="date" id="fromDate"></label>
+          <label>Sampai<input type="date" id="toDate"></label>
+          <button type="button" class="btn" id="applyRange">Terapkan</button>
+        </div>
+
+        <div class="auto">
+          <div class="top">
+            <small id="dashLabel">Ringkasan akun</small>
+            <div class="big" id="mBalance">–</div>
+            <div class="sub">Balance · <span id="mEquity">–</span> equity · <span id="mFloating">–</span> floating</div>
+          </div>
+        </div>
+
+        <div class="stats" id="metricsGrid"></div>
+        <p class="hint" id="statsNotes"></p>
+
+        <div class="chart">
+          <h3>Pertumbuhan balance</h3>
+          <canvas id="curveChart" height="240"></canvas>
+        </div>
+
+        <div class="tablehead">
+          <h2>Riwayat transaksi</h2>
+          <small class="hint" id="histCount"></small>
+        </div>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Waktu</th><th>Simbol</th><th>Arah</th><th>Volume</th><th>Profit bersih</th></tr></thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <p class="note">Konektor: MT5 memakai paket resmi <code>MetaTrader5</code> (butuh Windows + terminal), MT4 memakai protokol <code>PyTrader</code> (EA bridge di terminal). Integrasi read-only — tidak ada endpoint order.</p>
+</div>
+<script src="trading.js"></script>
+</body>
+</html>

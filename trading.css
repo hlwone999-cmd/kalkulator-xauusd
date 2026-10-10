@@ -1,0 +1,65 @@
+/* Akun Trading — trading.css (komponen baru; token warna mewarisi style.css) */
+
+/* ---------- elemen umum ---------- */
+select{width:100%;margin-top:5px;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:500 16px "Instrument Sans",sans-serif}
+.back{margin:0 0 6px}
+.back a{color:var(--muted);text-decoration:none;font-size:14px}
+.back a:hover{color:var(--gold)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.primary:active{transform:translateY(1px)}
+code{background:var(--goldsoft);padding:1px 5px;border-radius:5px}
+
+/* ---------- banner & status ---------- */
+.banner{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px}
+.banner.bad{background:var(--redsoft);color:var(--red)}
+.banner code{background:transparent;color:inherit}
+.statusbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.pill{display:inline-block;padding:5px 12px;border-radius:999px;font:600 13px "Instrument Sans",sans-serif;background:var(--goldsoft);color:var(--gold)}
+.pill.live{background:var(--goodsoft);color:var(--good)}
+.pill.off{background:var(--redsoft);color:var(--red)}
+
+/* ---------- info akun & daftar akun ---------- */
+.accinfo{margin-top:14px;border-top:1px solid var(--line);padding-top:6px}
+.accinfo div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.accinfo div:last-child{border-bottom:0}
+.accinfo span{color:var(--muted);font-size:13.5px}
+.accinfo b{font:600 14px "Instrument Sans",sans-serif;text-align:right;font-variant-numeric:tabular-nums}
+.acclist{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.accitem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--paper)}
+.accitem.active{border-color:var(--gold);outline:1px solid var(--gold)}
+.accitem .meta{flex:1;min-width:0}
+.accitem .meta b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.accitem .meta span{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.accitem button{padding:5px 10px;font-size:12.5px}
+
+/* ---------- empty state ---------- */
+.emptybox{background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:28px 20px;text-align:center;margin-top:8px}
+.emptybox b{font:700 17px Sora,sans-serif}
+.emptybox p{color:var(--muted);font-size:14px;margin:8px auto 14px;max-width:42ch}
+
+/* ---------- periode ---------- */
+.periods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.periods button{padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);font:600 13.5px "Instrument Sans",sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.periods button.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.customrange{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:10px}
+.customrange[hidden]{display:none}
+.customrange label{margin-top:0;font-size:13px}
+.customrange input{margin-top:4px;padding:8px 10px}
+
+/* ---------- metrik ---------- */
+#metricsGrid{margin-top:12px}
+#metricsGrid div b{font:700 16.5px Sora,sans-serif;font-variant-numeric:tabular-nums}
+#metricsGrid div b.pos{color:var(--good)}
+#metricsGrid div b.neg{color:var(--red)}
+#dashLabel{font-weight:600;color:var(--ink)}
+
+/* ---------- tabel riwayat ---------- */
+#histBody td.win{color:var(--good);font-weight:600}
+#histBody td.loss{color:var(--red);font-weight:600}
+#histBody td.be{color:var(--muted)}
+#histBody td.dir{font-weight:600}
+
+@media (max-width:879px){
+  .customrange{align-items:stretch}
+  .customrange label{flex:1;min-width:130px}
+}
