@@ -29,13 +29,25 @@ jobs:
         with:
           node-version: '22'
 
+      
       - name: Siapkan Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            platforms;android-35
-            build-tools;35.0.0
+        shell: bash
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager tidak ditemukan"
+            exit 1
+          fi
+
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+
+          "$SDKMANAGER" --install \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
 
       - name: Buat proyek Capacitor
         run: |
