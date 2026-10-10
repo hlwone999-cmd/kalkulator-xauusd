@@ -2,7 +2,7 @@
    Hanya untuk trading.html. TIDAK menyentuh script.js kalkulator. */
 "use strict";
 const $ = id => document.getElementById(id);
-const apiBase = new URLSearchParams(location.search).get("api") || "";
+const apiBase = new URLSearchParams(location.search).get("api") || "http://127.0.0.1:5000";
 
 async function api(path, opts = {}) {
   let res, data;
