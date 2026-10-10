@@ -1,6 +1,7 @@
 
 name: Build Kalkulator XAUUSD APK
 
+
 on:
   workflow_dispatch:
   push:
@@ -9,6 +10,10 @@ on:
       - 'index.html'
       - 'style.css'
       - 'script.js'
+      - 'trading.html'
+      - 'trading.css'
+      - 'trading.js'
+      
 
 permissions:
   contents: read
@@ -53,7 +58,7 @@ jobs:
       - name: Buat proyek Capacitor
         run: |
           mkdir -p www
-          cp index.html style.css script.js www/
+          cp index.html style.css script.js trading.html trading.css trading.js www/
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "Kalkulator XAUUSD" "com.hlwone999.kalkulatorxauusd" --web-dir www
