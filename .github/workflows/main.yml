@@ -1,83 +1,75 @@
 name: Build Kalkulator XAUUSD APK
 
 on:
-workflow_dispatch:
-push:
-paths:
-- '.github/workflows/main.yml'
-- 'index.html'
-- 'style.css'
-- 'script.js'
-- 'trading.html'
-- 'trading.css'
-- 'trading.js'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/main.yml'
+      - 'index.html'
+      - 'style.css'
+      - 'script.js'
+      - 'trading.html'
+      - 'trading.css'
+      - 'trading.js'
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode repository
+        uses: actions/checkout@v4
 
-steps:
-  - name: Ambil kode repository
-    uses: actions/checkout@v4
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
-  - name: Siapkan Java
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '21'
+      - name: Siapkan Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-  - name: Siapkan Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: '22'
+      - name: Siapkan Android SDK
+        shell: bash
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager tidak ditemukan"
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" --install \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
 
-  - name: Siapkan Android SDK
-    shell: bash
-    run: |
-      SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-      SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+      - name: Buat proyek Capacitor
+        shell: bash
+        run: |
+          mkdir -p www
+          cp index.html style.css script.js trading.html trading.css trading.js www/
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "Kalkulator XAUUSD" "com.hlwone999.kalkulatorxauusd" --web-dir www
+          node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.android={...(c.android||{}),allowMixedContent:true};fs.writeFileSync(p,JSON.stringify(c,null,2));"
+          npx cap add android
+          npx cap sync android
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
 
-      if [ -z "$SDKMANAGER" ]; then
-        echo "sdkmanager tidak ditemukan"
-        exit 1
-      fi
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-      yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
-
-      "$SDKMANAGER" --install \
-        "platform-tools" \
-        "platforms;android-35" \
-        "build-tools;35.0.0"
-
-  - name: Buat proyek Capacitor
-    shell: bash
-    run: |
-      mkdir -p www
-      cp index.html style.css script.js trading.html trading.css trading.js www/
-      npm init -y
-      npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      npx cap init "Kalkulator XAUUSD" "com.hlwone999.kalkulatorxauusd" --web-dir www
-
-      node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p,'utf8'));c.android={...(c.android||{}),allowMixedContent:true};fs.writeFileSync(p,JSON.stringify(c,null,2));"
-
-      npx cap add android
-      npx cap sync android
-
-      sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
-
-  - name: Build APK
-    run: |
-      cd android
-      chmod +x gradlew
-      ./gradlew assembleDebug
-
-  - name: Simpan APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: Kalkulator-XAUUSD-APK
-      path: android/app/build/outputs/apk/debug/app-debug.apk
-      if-no-files-found: error
+      - name: Simpan APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kalkulator-XAUUSD-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
